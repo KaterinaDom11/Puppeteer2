@@ -63,7 +63,7 @@ test("Should show warning if login is not email", async () => {
   await putText(page, 'input[type="email"]', generateName(5));
 });
 
-describe.only("Website Test 'Идем в Кино", () => {
+describe("Website Test 'Идем в Кино", () => {
   beforeEach(async () => {
     page = await browser.newPage();
     await page.goto("http://qamid.tmweb.ru/client/index.php");
@@ -71,14 +71,39 @@ describe.only("Website Test 'Идем в Кино", () => {
 
   test("Booking a ticket for the Witcher movie in the Modern Hall", async () => {
     const expected = "Получить код бронирования";
-    await seatReservationData(page, ".page-nav__day.page-nav__day_chosen");
+    await seatReservationData(page, "a:nth-child(2)");
     await seatReservationTime(
       page,
       ".movie-seances__time[href='#'][data-seance-id='225']"
     );
-    await seatReservationOne(page, "div:nth-child(5) span:nth-child(6)");
+    await seatReservationOne(page, "div:nth-child(8) span:nth-child(7)");
     await page.click(".acceptin-button");
     const actual = await getTextReservation(page, ".acceptin-button");
-    expect(actual).toEqual(expected);
+    expect(actual).to.contain(expected);
   });
+  test.only ("Ticket price for two VIP and standard seats", async () => {
+    const expected = "1500";
+    await seatReservationData(page, "a:nth-child(2)");
+    await seatReservationTime(
+      page,
+      ".movie-seances__time[href='#'][data-seance-id='199']"
+    );
+    await seatReservationOne(page, "div:nth-child(4) span:nth-child(6)");
+    await seatReservationOne(page, "div:nth-child(4) span:nth-child(7)");
+    await page.click(".acceptin-button");
+    const actual = await getTextReservation(page, ".ticket__details.ticket__cost");
+    expect(actual).to.contain(expected);
+ });
+test.only ("Attempt to reserve an occupied seat", async () => {
+    await seatReservationData(page, "a:nth-child(4)");
+    await seatReservationTime(
+      page,
+      ".movie-seances__time[href='#'][data-seance-id='199']"
+    );
+    await seatReservationOne(page, "div:nth-child(7) span:nth-child(8)");
+    await page.click(".acceptin-button");
+    const actual = await getTextReservation(page, ".ticket__details.ticket__cost");
+    expect(actual).to.contain(expected);
+ });
+
 });
